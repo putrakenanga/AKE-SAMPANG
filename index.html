@@ -452,7 +452,7 @@
 
     .app-main {
       margin-left: calc(var(--sidebar-w) + 24px);
-      padding: 24px 32px 48px 24px;
+      padding: calc(24px + env(safe-area-inset-top, 0px)) 32px 48px 24px;
       max-width: 1380px;
       width: calc(100% - var(--sidebar-w) - 24px);
       min-width: 0;
@@ -462,7 +462,7 @@
       margin-left: auto !important;
       margin-right: auto !important;
       width: 100% !important;
-      padding: 24px 40px 48px 40px !important;
+      padding: calc(24px + env(safe-area-inset-top, 0px)) 40px 48px 40px !important;
     }
 
     .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
@@ -563,7 +563,7 @@
 
     #webNotifToastContainer {
       position: fixed;
-      top: 18px;
+      top: calc(18px + env(safe-area-inset-top, 0px));
       right: 18px;
       z-index: 10020;
       display: flex;
@@ -926,7 +926,7 @@
     }
     .login-top-right-theme {
       position: fixed;
-      top: 18px;
+      top: calc(18px + env(safe-area-inset-top, 0px));
       right: 18px;
       z-index: 10001;
     }
@@ -1191,6 +1191,7 @@
 
     /* =========================================================================
        TAMPILAN MOBILE / HANDPHONE PERSIS SEPERTI VERSI LAMA (PAS & PROPORSIONAL)
+       + SAFE AREA INSET ATAS & BAWAH UNTUK IPHONE DYNAMIC ISLAND / NOTCH
        ========================================================================= */
     html.force-mobile-layout,
     html.force-mobile-layout[data-theme="dark"] {
@@ -1244,13 +1245,13 @@
       margin-left: 0 !important;
       margin-right: 0 !important;
       width: 100% !important;
-      padding: 14px 12px 96px 12px !important;
+      padding: calc(14px + env(safe-area-inset-top, 0px)) 12px calc(96px + env(safe-area-inset-bottom, 0px)) 12px !important;
     }
     html.force-mobile-layout .app-main.admin-eka-layout {
       margin-left: 0 !important;
       margin-right: 0 !important;
       width: 100% !important;
-      padding: 14px 12px 44px 12px !important;
+      padding: calc(14px + env(safe-area-inset-top, 0px)) 12px calc(44px + env(safe-area-inset-bottom, 0px)) 12px !important;
     }
     html.force-mobile-layout .transaksi-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     html.force-mobile-layout .pox-two-col-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
@@ -1335,13 +1336,13 @@
         margin-left: 0 !important;
         margin-right: 0 !important;
         width: 100% !important;
-        padding: 14px 12px 96px 12px !important;
+        padding: calc(14px + env(safe-area-inset-top, 0px)) 12px calc(96px + env(safe-area-inset-bottom, 0px)) 12px !important;
       }
       .app-main.admin-eka-layout {
         margin-left: 0 !important;
         margin-right: 0 !important;
         width: 100% !important;
-        padding: 14px 12px 44px 12px !important;
+        padding: calc(14px + env(safe-area-inset-top, 0px)) 12px calc(44px + env(safe-area-inset-bottom, 0px)) 12px !important;
       }
       .transaksi-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
       .pox-two-col-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
@@ -2164,7 +2165,6 @@
       </div>
     </section>
   </main>
-
   <div id="inputTrukModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeInputTrukModal()">&times;</span>
@@ -2366,6 +2366,7 @@
     let knownKunjunganIdsSet = new Set();
     let knownPoxIdsSet = new Set();
     let wasPickUpZeroAlerted = false;
+    let wasPickUpOneAlerted = false;
     let swRegistrationInstance = null;
 
     let selectedRoleName = '';
@@ -3226,6 +3227,14 @@
           bg: 'var(--card-inner-bg)'
         };
       }
+      if (category === 'PICKUP_ONE') {
+        return {
+          svg: `<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+          badge: 'STOK PICK UP SISA 1',
+          color: 'var(--warning)',
+          bg: 'var(--card-inner-bg)'
+        };
+      }
       return {
         svg: `<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
         badge: 'STOK PICK UP 0',
@@ -3305,7 +3314,7 @@
         box.innerHTML = `
           <div style="text-align:center; padding:32px 16px; background:var(--card-inner-bg); border-radius:12px; border:1px solid var(--border-subtle); color:var(--text-sub); font-size:12px;">
             Belum ada notifikasi aktivitas hari ini.<br>
-            <span style="font-size:10.5px;">Notifikasi otomatis muncul di beranda & handphone saat kurir menambah pelanggan baru, melakukan kunjungan, memproses pelanggan berhenti (tarik galkos), melakukan POX, atau saat isi Pick Up 0 galon.</span>
+            <span style="font-size:10.5px;">Notifikasi otomatis muncul di beranda & handphone saat kurir menambah pelanggan baru, melakukan kunjungan, memproses pelanggan berhenti (tarik galkos), melakukan POX, atau saat isi Pick Up sisa 1 / 0 galon.</span>
           </div>
         `;
         return;
@@ -3367,6 +3376,7 @@
 
           if (currentPickUp === 0) {
             wasPickUpZeroAlerted = true;
+            wasPickUpOneAlerted = false;
             pushWebNotification(
               'PICKUP_ZERO',
               'Peringatan: Stok Pick Up Habis!',
@@ -3374,8 +3384,19 @@
               getNowTimeWibFormatted(),
               `PICKUP_ZERO_${getTodayDateKeyWib()}_INIT`
             );
+          } else if (currentPickUp === 1) {
+            wasPickUpOneAlerted = true;
+            wasPickUpZeroAlerted = false;
+            pushWebNotification(
+              'PICKUP_ONE',
+              'Peringatan: Stok Pick Up Tinggal 1 Galon!',
+              'Jumlah isi galon di Pick Up saat ini tersisa <b>1 Galon</b>. Siap-siap lakukan POX pengisian dari truk.',
+              getNowTimeWibFormatted(),
+              `PICKUP_ONE_${getTodayDateKeyWib()}_INIT`
+            );
           } else {
             wasPickUpZeroAlerted = false;
+            wasPickUpOneAlerted = false;
           }
         } else {
           let hasNewBerhenti = false;
@@ -3433,6 +3454,7 @@
 
           if (currentPickUp === 0 && !wasPickUpZeroAlerted) {
             wasPickUpZeroAlerted = true;
+            wasPickUpOneAlerted = false;
             pushWebNotification(
               'PICKUP_ZERO',
               'Peringatan: Stok Pick Up Habis!',
@@ -3440,8 +3462,19 @@
               getNowTimeWibFormatted(),
               `PICKUP_ZERO_${new Date().getTime()}`
             );
-          } else if (currentPickUp > 0) {
+          } else if (currentPickUp === 1 && !wasPickUpOneAlerted) {
+            wasPickUpOneAlerted = true;
             wasPickUpZeroAlerted = false;
+            pushWebNotification(
+              'PICKUP_ONE',
+              'Peringatan: Stok Pick Up Tinggal 1 Galon!',
+              'Jumlah isi galon di Pick Up saat ini tersisa <b>1 Galon</b>. Siap-siap lakukan POX pengisian dari truk.',
+              getNowTimeWibFormatted(),
+              `PICKUP_ONE_${new Date().getTime()}`
+            );
+          } else if (currentPickUp > 1) {
+            wasPickUpZeroAlerted = false;
+            wasPickUpOneAlerted = false;
           }
 
           updateIsiPickUpDisplays(currentPickUp);
@@ -3459,14 +3492,14 @@
         const currentPickUp = res.isiPickUp !== undefined ? Math.max(0, parseInt(res.isiPickUp, 10) || 0) : globalIsiPickUp;
 
         if (!isNotifBaselineLoaded || isInitialSeed) {
-          riwayat.forEach(item => {
-            const pId = String(item.idPox || item.id || '');
+          riwayat.forEach((item, idx) => {
+            const pId = String(item.idPox || item.id || `${item.tanggal}_${item.jam}_${item.jumlahDiisi}_${idx}`);
             if (pId) knownPoxIdsSet.add(pId);
           });
         } else {
           let hasNewPox = false;
-          riwayat.slice().reverse().forEach(item => {
-            const pId = String(item.idPox || item.id || '');
+          riwayat.slice().reverse().forEach((item, idx) => {
+            const pId = String(item.idPox || item.id || `${item.tanggal}_${item.jam}_${item.jumlahDiisi}_${idx}`);
             if (pId && !knownPoxIdsSet.has(pId)) {
               knownPoxIdsSet.add(pId);
               hasNewPox = true;
@@ -3490,6 +3523,7 @@
 
           if (currentPickUp === 0 && !wasPickUpZeroAlerted) {
             wasPickUpZeroAlerted = true;
+            wasPickUpOneAlerted = false;
             pushWebNotification(
               'PICKUP_ZERO',
               'Peringatan: Stok Pick Up Habis!',
@@ -3497,8 +3531,19 @@
               getNowTimeWibFormatted(),
               `PICKUP_ZERO_${new Date().getTime()}`
             );
-          } else if (currentPickUp > 0) {
+          } else if (currentPickUp === 1 && !wasPickUpOneAlerted) {
+            wasPickUpOneAlerted = true;
             wasPickUpZeroAlerted = false;
+            pushWebNotification(
+              'PICKUP_ONE',
+              'Peringatan: Stok Pick Up Tinggal 1 Galon!',
+              'Jumlah isi galon di Pick Up saat ini tersisa <b>1 Galon</b>. Siap-siap lakukan POX pengisian dari truk.',
+              getNowTimeWibFormatted(),
+              `PICKUP_ONE_${new Date().getTime()}`
+            );
+          } else if (currentPickUp > 1) {
+            wasPickUpZeroAlerted = false;
+            wasPickUpOneAlerted = false;
           }
 
           if (hasNewPox || currentPickUp !== globalIsiPickUp) {
@@ -5183,21 +5228,15 @@ Terima kasih atas perhatian, kerja sama, dan pengertian Bapak/Ibu. 🙏🏼`);
       globalRiwayatPoxList = Array.isArray(res.riwayatPox) ? res.riwayatPox : [];
       globalPoxRingkasan = res.ringkasan || {};
 
-      if (isNotifBaselineLoaded) {
-        globalRiwayatPoxList.forEach(item => {
-          const pId = String(item.idPox || item.id || '');
-          if (pId) knownPoxIdsSet.add(pId);
-        });
-      }
-
       const isiPickUpVal = res.isiPickUp !== undefined
-        ? res.isiPickUp
-        : (globalPoxRingkasan.isiPickUp !== undefined ? globalPoxRingkasan.isiPickUp : globalIsiPickUp);
+        ? Math.max(0, parseInt(res.isiPickUp, 10) || 0)
+        : (globalPoxRingkasan.isiPickUp !== undefined ? Math.max(0, parseInt(globalPoxRingkasan.isiPickUp, 10) || 0) : globalIsiPickUp);
       updateIsiPickUpDisplays(isiPickUpVal);
 
       if (isNotifBaselineLoaded) {
         if (isiPickUpVal === 0 && !wasPickUpZeroAlerted) {
           wasPickUpZeroAlerted = true;
+          wasPickUpOneAlerted = false;
           pushWebNotification(
             'PICKUP_ZERO',
             'Peringatan: Stok Pick Up Habis!',
@@ -5205,8 +5244,19 @@ Terima kasih atas perhatian, kerja sama, dan pengertian Bapak/Ibu. 🙏🏼`);
             getNowTimeWibFormatted(),
             `PICKUP_ZERO_${new Date().getTime()}`
           );
-        } else if (isiPickUpVal > 0) {
+        } else if (isiPickUpVal === 1 && !wasPickUpOneAlerted) {
+          wasPickUpOneAlerted = true;
           wasPickUpZeroAlerted = false;
+          pushWebNotification(
+            'PICKUP_ONE',
+            'Peringatan: Stok Pick Up Tinggal 1 Galon!',
+            'Jumlah isi galon di Pick Up saat ini tersisa <b>1 Galon</b>. Siap-siap lakukan POX pengisian dari truk.',
+            getNowTimeWibFormatted(),
+            `PICKUP_ONE_${new Date().getTime()}`
+          );
+        } else if (isiPickUpVal > 1) {
+          wasPickUpZeroAlerted = false;
+          wasPickUpOneAlerted = false;
         }
       }
 
